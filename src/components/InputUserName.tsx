@@ -9,6 +9,7 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import PeerManage from '../webrtc/PeerManage';
 
 function Copyright() {
   return (
@@ -43,7 +44,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function InputUserName({peerManage, roomName, userName, setUserName}) {
+interface Props {
+  peerManage: PeerManage,
+  roomName: string,
+  userName: string,
+  setUserName: any
+}
+
+export default function InputUserName({peerManage, roomName, userName, setUserName}: Props) {
   const classes = useStyles();
   const [name, setName] = useState('');
 

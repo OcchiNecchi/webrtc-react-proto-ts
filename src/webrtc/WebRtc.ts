@@ -1,7 +1,15 @@
 import SignalingClient from "./SignalingClient";
 
 export default class WebRtc {
-  constructor(remoteVideoRef) {
+  roomName: string;
+  myUserName: string;
+  remoteUserName: string;
+  rtcPeerConnection: RTCPeerConnection;
+  signalingClient: SignalingClient;
+  mediaStream: MediaStream;
+  remoteVideoRef: HTMLVideoElement;
+
+  constructor(remoteVideoRef: HTMLVideoElement) {
     // urlsには公開されているstunserverを設定する
     // stunserver：外部から見た自PCのIPアドレスを返してくれるもの
     const config = {
@@ -20,7 +28,7 @@ export default class WebRtc {
     this.remoteUserName = '';
 
     // Localのメディアストリーム
-    this.mediaStream = null;
+    this.mediaStream = new MediaStream();
 
     // remoteVideo用のRef
     this.remoteVideoRef = remoteVideoRef;
@@ -44,7 +52,7 @@ export default class WebRtc {
     }
   }
 
-  setRoomName(roomName) {
+  setRoomName(roomName: string) {
     this.roomName = roomName;
   }
   
@@ -81,7 +89,7 @@ export default class WebRtc {
   }
 
   // rtcPeerConnectionのsetLocalDescriptionにて自分のSDPを設定する
-  async setLocalSdp(sessionDescription) {
+  async setLocalSdp(sessionDescription: any) {
     try{
       await this.rtcPeerConnection.setLocalDescription(sessionDescription);
     }catch(e) {
@@ -90,7 +98,7 @@ export default class WebRtc {
   }
 
   // rtcPeerConnectionのsetRemoteDescriptionにて相手のSDPを設定する
-  async setRemoteSdp(remoteSdp) {
+  async setRemoteSdp(remoteSdp: any) {
     try{
       console.log(remoteSdp)
       await this.rtcPeerConnection.setRemoteDescription(remoteSdp);
@@ -107,7 +115,7 @@ export default class WebRtc {
   }
 
   // 自分の名前を入力した後、offerシグナルを送信する
-  async offer(myUserName, remoteUserName, roomName) {
+  async offer(myUserName: string, remoteUserName: string, roomName: string) {
     this.myUserName = myUserName;
     this.remoteUserName = remoteUserName;
     this.roomName = roomName;
