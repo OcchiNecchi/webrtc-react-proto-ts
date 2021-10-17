@@ -28,7 +28,7 @@ export default class SignalingClient {
   }
 
   // offerをRealtimeDatabaseに送る。SDPはjson形式でくる
-  async signalOffer(sdp, roomName: string, myUserName: string, remoteUserName: string) {
+  async signalOffer(sdp: any, roomName: string, myUserName: string, remoteUserName: string) {
     this.remoteUserName = remoteUserName;
     await this.database.ref(roomName + '/' + remoteUserName).set({
       signal: 'offer',

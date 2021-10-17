@@ -90,7 +90,7 @@ export default function InputUserName({peerManage, roomName, userName, setUserNa
             id="username"
             onChange={(e) => setName(e.target.value)}
             onKeyDown={ async (e) => {
-              if(e.target.value === '') return;
+              if((e.target as HTMLInputElement).value === '') return;
               if(e.key === 'Enter') {
                 setInputUserName();
                 await startListenSignal(e);
@@ -103,7 +103,7 @@ export default function InputUserName({peerManage, roomName, userName, setUserNa
             variant="contained"
             color="primary"
             className={classes.submit}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => setName((e.target as HTMLInputElement).value)}
             onClick={ async(e) => {
               setInputUserName();
               await startListenSignal(e);

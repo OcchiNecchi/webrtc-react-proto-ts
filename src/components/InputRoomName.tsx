@@ -84,7 +84,7 @@ export default function InputRoomName({peerManage, roomName, setRoomName}: Props
             id="roomname"
             onChange={(e) =>  setName(e.target.value)}
             onKeyDown={ e => {
-              if(e.target.value === '') return;
+              if((e.target as HTMLInputElement).value === '') return;
               if(e.key === 'Enter') {
                 setRoomNames();
               }
