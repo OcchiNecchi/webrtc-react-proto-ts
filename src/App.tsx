@@ -8,6 +8,7 @@ import VideoRemoteThree from './components/VideoRemoteThree';
 import PeerManage from './webrtc/PeerManage';
 import Grid from '@material-ui/core/Grid';
 
+type RefType = MutableRefObject<HTMLVideoElement>;
 
 function App() {
   const [roomName, setRoomName] = useState('');
@@ -17,11 +18,11 @@ function App() {
   const [myVideoStream, setMyVideoStream] = useState();
 
   // WebRtc設定を行うインスタンスを生成
-  const remoteVideoRef = useRef<MutableRefObject<HTMLVideoElement>>(null);
-  const remoteVideoRefTwo = useRef(null);
-  const remoteVideoRefThree = useRef(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null) as RefType;
+  const remoteVideoRefTwo = useRef<HTMLVideoElement>(null) as RefType;
+  const remoteVideoRefThree = useRef<HTMLVideoElement>(null) as RefType;
 
-  const peerManage = new PeerManage(remoteVideoRef.current, remoteVideoRefTwo.current, remoteVideoRefThree.current, myVideoStream);
+  const peerManage = new PeerManage(remoteVideoRef, remoteVideoRefTwo, remoteVideoRefThree, myVideoStream);
 
   return (
     <>

@@ -13,7 +13,7 @@ export default class WebRtc {
   mediaStream: MediaStream;
   remoteVideoRef: RefType;
 
-  constructor(remoteVideoRef:  RefType) {
+  constructor(remoteVideoRef: RefType) {
     // urlsには公開されているstunserverを設定する
     // stunserver：外部から見た自PCのIPアドレスを返してくれるもの
     const config = {
@@ -79,6 +79,8 @@ export default class WebRtc {
       if (rtcTrackEvent.track.kind !== 'video') return;
       // 相手のstreamを設定する
       const remoteMediaStream = rtcTrackEvent.streams[0];
+      console.log(this.remoteVideoRef);
+      console.log(this.remoteVideoRef?.current)
       this.remoteVideoRef!.current.srcObject = remoteMediaStream;
     };
   }
