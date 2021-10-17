@@ -9,6 +9,7 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import PeerManage from '../webrtc/PeerManage';
 
 function Copyright() {
   return (
@@ -43,7 +44,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function InputRoomName({peerManage, roomName, setRoomName}) {
+interface Props {
+  peerManage: PeerManage,
+  roomName: string,
+  setRoomName: any
+}
+
+export default function InputRoomName({peerManage, roomName, setRoomName}: Props) {
   const classes = useStyles();
 
   const [name, setName] = useState('');
@@ -77,7 +84,7 @@ export default function InputRoomName({peerManage, roomName, setRoomName}) {
             id="roomname"
             onChange={(e) =>  setName(e.target.value)}
             onKeyDown={ e => {
-              if(e.target.value === '') return;
+              if((e.target as HTMLInputElement).value === '') return;
               if(e.key === 'Enter') {
                 setRoomNames();
               }

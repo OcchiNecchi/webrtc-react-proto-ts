@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, MutableRefObject} from 'react';
 import InputRoomName from './components/InputRoomName';
 import InputUserName from './components/InputUserName';
 import Video from './components/Video';
@@ -10,18 +10,18 @@ import Grid from '@material-ui/core/Grid';
 
 
 function App() {
-  const[roomName, setRoomName] = useState('');
-  const[userName, setUserName] = useState('');
+  const [roomName, setRoomName] = useState('');
+  const [userName, setUserName] = useState('');
 
   // TODO TEST
-  const[myVideoStream, setMyVideoStream] = useState();
+  const [myVideoStream, setMyVideoStream] = useState();
 
   // WebRtc設定を行うインスタンスを生成
-  const remoteVideoRef = useRef(null);
+  const remoteVideoRef = useRef<MutableRefObject<HTMLVideoElement>>(null);
   const remoteVideoRefTwo = useRef(null);
   const remoteVideoRefThree = useRef(null);
 
-  let peerManage = new PeerManage(remoteVideoRef, remoteVideoRefTwo, remoteVideoRefThree, myVideoStream);
+  const peerManage = new PeerManage(remoteVideoRef.current, remoteVideoRefTwo.current, remoteVideoRefThree.current, myVideoStream);
 
   return (
     <>

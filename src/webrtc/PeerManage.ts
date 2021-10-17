@@ -1,8 +1,25 @@
+import { MutableRefObject } from "react";
 import SignalingClient from "./SignalingClient";
 import WebRtc from './WebRtc';
 
+type MyStreamType = HTMLVideoElement | HTMLCanvasElement;
+type RefType = MutableRefObject<HTMLVideoElement> | null;
+
 export default class PeerManage {
-  constructor(remoteVideoRef, remoteVideoRefTwo, remoteVideoRefThree, myVideoStream) {
+  roomName: string;
+  myUserName: string;
+  userInRoom: string[];
+  peerArray: WebRtc[];
+  remoteUserArray: string[];
+  signalingClient: SignalingClient;
+
+  remoteVideoRef: RefType;
+  remoteVideoRefTwo: RefType;
+  remoteVideoRefThree: RefType;
+  myVideoStream: any;
+
+  constructor(remoteVideoRef: RefType, remoteVideoRefTwo: RefType, 
+    remoteVideoRefThree: RefType, myVideoStream: any) {
     this.roomName = '';
     this.myUserName = '';
 
@@ -27,22 +44,22 @@ export default class PeerManage {
     this.myVideoStream = myVideoStream;
   }
 
-  setRoomName(roomName) {
+  setRoomName(roomName: string) {
     this.roomName = roomName;
   }
 
   // 自分のmediaStreamを設定する
-  async setPeerMediaStream(peerNum) {
+  async setPeerMediaStream(peerNum: number) {
     await this.peerArray[peerNum].setLocalMediaStream(this.myVideoStream);
   }
 
   // シグナリングを開始する
-  async startSignal(roomName, myUserName) {
+  async startSignal(roomName: string, myUserName: string) {
     this.roomName = roomName;
     this.myUserName = myUserName;
 
     // 自分以外のユーザーが部屋にいた場合、offerを送信する
-    await this.signalingClient.database.ref(roomName + '/roomuser').once('value', async (snapshot) => {
+    await this.signalingClient.database.ref(roomName + '/roomuser').once('value', async (snapshot: any) => {
       const userData = snapshot.val();
       if(userData === null) return;
 
@@ -59,7 +76,7 @@ export default class PeerManage {
     this.signalingClient.registerUser(this.roomName, this.myUserName);
 
     // シグナルをリッスンする
-    this.signalingClient.database.ref(roomName + '/' + this.myUserName).on('value', async (snapshot) => {
+    this.signalingClient.database.ref(roomName + '/' + this.myUserName).on('value', async (snapshot: any) => {
       const dbData = snapshot.val();
       // 部屋の一人目の時など、特にデータがない場合
       if(dbData === null) return;

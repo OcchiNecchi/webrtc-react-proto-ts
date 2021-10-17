@@ -1,7 +1,19 @@
+import { MutableRefObject } from "react";
 import SignalingClient from "./SignalingClient";
 
+type MyStreamType = HTMLVideoElement | HTMLCanvasElement;
+type RefType = MutableRefObject<HTMLVideoElement> | null;
+
 export default class WebRtc {
-  constructor(remoteVideoRef) {
+  roomName: string;
+  myUserName: string;
+  remoteUserName: string;
+  rtcPeerConnection: RTCPeerConnection;
+  signalingClient: SignalingClient;
+  mediaStream: MediaStream;
+  remoteVideoRef: RefType;
+
+  constructor(remoteVideoRef:  RefType) {
     // urlsには公開されているstunserverを設定する
     // stunserver：外部から見た自PCのIPアドレスを返してくれるもの
     const config = {
@@ -20,14 +32,14 @@ export default class WebRtc {
     this.remoteUserName = '';
 
     // Localのメディアストリーム
-    this.mediaStream = null;
+    this.mediaStream = new MediaStream();
 
     // remoteVideo用のRef
     this.remoteVideoRef = remoteVideoRef;
   }
 
   // 自分のmediaStreamとTrackを設定する
-  async setLocalMediaStream(myVideoStream) {
+  async setLocalMediaStream(myVideoStream: MediaStream) {
     // mediaStreamを取得する
     const constraints = { audio: true, video: true };
     this.mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -44,7 +56,7 @@ export default class WebRtc {
     }
   }
 
-  setRoomName(roomName) {
+  setRoomName(roomName: string) {
     this.roomName = roomName;
   }
   
@@ -67,7 +79,7 @@ export default class WebRtc {
       if (rtcTrackEvent.track.kind !== 'video') return;
       // 相手のstreamを設定する
       const remoteMediaStream = rtcTrackEvent.streams[0];
-      this.remoteVideoRef.current.srcObject = remoteMediaStream;
+      this.remoteVideoRef!.current.srcObject = remoteMediaStream;
     };
   }
 
@@ -81,7 +93,7 @@ export default class WebRtc {
   }
 
   // rtcPeerConnectionのsetLocalDescriptionにて自分のSDPを設定する
-  async setLocalSdp(sessionDescription) {
+  async setLocalSdp(sessionDescription: any) {
     try{
       await this.rtcPeerConnection.setLocalDescription(sessionDescription);
     }catch(e) {
@@ -90,7 +102,7 @@ export default class WebRtc {
   }
 
   // rtcPeerConnectionのsetRemoteDescriptionにて相手のSDPを設定する
-  async setRemoteSdp(remoteSdp) {
+  async setRemoteSdp(remoteSdp: any) {
     try{
       console.log(remoteSdp)
       await this.rtcPeerConnection.setRemoteDescription(remoteSdp);
@@ -102,12 +114,12 @@ export default class WebRtc {
   // offerシグナルを実際にRealtimeDatabaseに送る
   async sendOffer() {
     // offerをRealtimeDatabaseに送る。SDPはJSONにする
-    await this.signalingClient.signalOffer(this.rtcPeerConnection.localDescription.toJSON(),
+    await this.signalingClient.signalOffer(this.rtcPeerConnection.localDescription!.toJSON(),
       this.roomName, this.myUserName, this.remoteUserName);
   }
 
   // 自分の名前を入力した後、offerシグナルを送信する
-  async offer(myUserName, remoteUserName, roomName) {
+  async offer(myUserName: string, remoteUserName: string, roomName: string) {
     this.myUserName = myUserName;
     this.remoteUserName = remoteUserName;
     this.roomName = roomName;
@@ -127,7 +139,7 @@ export default class WebRtc {
   }
 
   // offerを受け取った時、answerシグナルを送信する
-  async answer(sdp, roomName, myUserName, remoteUserName) {
+  async answer(sdp: any, roomName: string, myUserName: string, remoteUserName: string) {
     this.myUserName = myUserName;
 
     // answer受け取った人から見ればoffer送った人がremoteの人
@@ -152,7 +164,7 @@ export default class WebRtc {
 
       // TODO offerと揃える(sendAnswerを作った方が書き方そろっている)
       // answerを送信する
-      await this.signalingClient.signalAnswer(this.rtcPeerConnection.localDescription.toJSON(),
+      await this.signalingClient.signalAnswer(this.rtcPeerConnection.localDescription!.toJSON(),
         this.roomName, this.myUserName, this.remoteUserName);
 
     } catch(e) {

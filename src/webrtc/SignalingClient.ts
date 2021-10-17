@@ -2,6 +2,9 @@ import firebase from 'firebase/app';
 import 'firebase/database';
 
 export default class SignalingClient {
+  database: any;
+  remoteUserName: string;
+
   constructor() {
     // Your web app's Firebase configuration
     const firebaseConfig = {
@@ -20,10 +23,12 @@ export default class SignalingClient {
     // Get a reference to the database service
     this.database = firebase.database();
 
+    this.remoteUserName = '';
+
   }
 
   // offerをRealtimeDatabaseに送る。SDPはjson形式でくる
-  async signalOffer(sdp, roomName, myUserName, remoteUserName) {
+  async signalOffer(sdp: any, roomName: string, myUserName: string, remoteUserName: string) {
     this.remoteUserName = remoteUserName;
     await this.database.ref(roomName + '/' + remoteUserName).set({
       signal: 'offer',
@@ -33,7 +38,7 @@ export default class SignalingClient {
   }
 
   // answerをRealtimeDatabaseに送る
-  async signalAnswer(sdp, roomName, myUserName, remoteUserName) {
+  async signalAnswer(sdp: any, roomName: string, myUserName: string, remoteUserName: string) {
     await this.database.ref(roomName + '/' + remoteUserName).set({
       signal: 'answer',
       sdp,
@@ -42,7 +47,7 @@ export default class SignalingClient {
   }
   
   // candidateをRealtimeDatabaseに送る
-  async signalCandidate(candidate, roomName, myUserName, remoteUserName) {
+  async signalCandidate(candidate: any, roomName: string, myUserName: string, remoteUserName: string) {
     await this.database.ref(roomName + '/' + remoteUserName).set({
       signal: 'icecandidate',
       candidate,
@@ -51,7 +56,7 @@ export default class SignalingClient {
   }
 
   // roomuserに自分のユーザー名を入れる
-  async registerUser(roomName, myUserName) {
+  async registerUser(roomName: string, myUserName: string) {
     // TODO 流石にuserNameの中にuserNameはあれなので入れた日にちとかにしとく
     await this.database.ref(roomName + '/roomuser/' + myUserName).set({
       myUserName
