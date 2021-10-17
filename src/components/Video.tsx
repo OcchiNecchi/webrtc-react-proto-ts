@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, MutableRefObject} from 'react';
 import "@tensorflow/tfjs";
 import * as bodyPix from "@tensorflow-models/body-pix";
 import { makeStyles } from '@material-ui/core/styles';
@@ -24,8 +24,8 @@ const Video = ({setMyVideoStream, roomName, userName}: Props) => {
   const classes = useStyles();
 
   // TODO リファクタ対象
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   let contineuAnimation = true;
   let bodyPixMaks: any = null;
   let canvasStream = null;
@@ -35,9 +35,10 @@ const Video = ({setMyVideoStream, roomName, userName}: Props) => {
 
   // 追加コード
   const startCanvasVideo = async () => {
-
+    if(videoRef.current === null || canvasRef.current === null) return;
+    
     // タグに直接autoplayだとvideoが止まってしまうため
-    await videoRef.current.play().catch(err => console.error('local play ERROR:', err));
+    await videoRef.current.play().catch((err: any) => console.error('local play ERROR:', err));
 
     window.requestAnimationFrame(updateCanvas);
     canvasStream = canvasRef.current.captureStream();
@@ -46,7 +47,7 @@ const Video = ({setMyVideoStream, roomName, userName}: Props) => {
   }
 
   const updateCanvas = () => {
-    drawCanvas(videoRef.current);
+    drawCanvas(videoRef.current!);
     if (contineuAnimation) {
       window.requestAnimationFrame(updateCanvas);
     }
@@ -59,7 +60,7 @@ const Video = ({setMyVideoStream, roomName, userName}: Props) => {
     const maskBlurAmount = 0; // マスクの周囲にボケ効果を入れる
 
     bodyPix.drawMask(
-      canvasRef.current, srcElement, bodyPixMaks, opacity, maskBlurAmount,
+      canvasRef.current!, srcElement, bodyPixMaks, opacity, maskBlurAmount,
       flipHorizontal
     );
   }
