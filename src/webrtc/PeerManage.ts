@@ -3,7 +3,7 @@ import SignalingClient from "./SignalingClient";
 import WebRtc from './WebRtc';
 
 type MyStreamType = HTMLVideoElement | HTMLCanvasElement;
-type RefType = MutableRefObject<HTMLVideoElement> | null;
+type RefType = MutableRefObject<HTMLVideoElement>;
 
 export default class PeerManage {
   roomName: string;
