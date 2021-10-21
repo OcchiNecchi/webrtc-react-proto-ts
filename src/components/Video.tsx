@@ -104,14 +104,35 @@ const Video = ({setMyVideoStream, roomName, userName}: Props) => {
       // MDNから audioとカメラの使用許可をブラウザに 与える
       if(videoRef.current) {
         videoRef.current.srcObject = mediaStream;
-        
-        // body-pit 
-        await loadModel();
-  
-        // videoが読み込まれたらコールバックを実行する
-        videoRef.current.onloadeddata = (e) => {
-          startCanvasVideo();
+
+        if (window.matchMedia && window.matchMedia('(max-device-width: 640px)').matches) {
+          // スマホ・タブレット（iOS・Android）の場合
+          setMyVideoStream(mediaStream);
+        } else {
+          // PCの場合
+          // body-pit 
+          await loadModel();
+    
+          // videoが読み込まれたらコールバックを実行する
+          videoRef.current.onloadeddata = (e) => {
+            startCanvasVideo();
+          }
         }
+
+        // if(navigator.userAgent.match(/(iPhone|iPad|iPod|Android)/i)){
+        //   // スマホ・タブレット（iOS・Android）の場合
+        //   setMyVideoStream(mediaStream);
+
+        // }else{
+        //   // PCの場合
+        //   // body-pit 
+        //   await loadModel();
+    
+        //   // videoが読み込まれたらコールバックを実行する
+        //   videoRef.current.onloadeddata = (e) => {
+        //     startCanvasVideo();
+        //   }
+        // }
       }
     }
 
