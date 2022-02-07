@@ -14,7 +14,6 @@ function App() {
   const [roomName, setRoomName] = useState('');
   const [userName, setUserName] = useState('');
 
-  // TODO TEST
   const [myVideoStream, setMyVideoStream] = useState();
 
   // WebRtc設定を行うインスタンスを生成

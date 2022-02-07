@@ -1,10 +1,11 @@
-import React, {useEffect, useRef, MutableRefObject} from 'react';
+import React, {useEffect, useRef, MutableRefObject, useState} from 'react';
 import "@tensorflow/tfjs";
 import * as bodyPix from "@tensorflow-models/body-pix";
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
 
 const useStyles = makeStyles({
   root: {
@@ -22,6 +23,9 @@ interface Props {
 
 const Video = ({setMyVideoStream, roomName, userName}: Props) => {
   const classes = useStyles();
+
+  // 自分のストリーム
+  const [hideStreamMode, setHideStreamMode] = useState<boolean>(true);
 
   // TODO リファクタ対象
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -87,68 +91,81 @@ const Video = ({setMyVideoStream, roomName, userName}: Props) => {
         // 次の人体セグメンテーションの実行を予約する
         setTimeout(updateSegment, segmeteUpdateTime);
       }
-    })
+    }).catch(async (err: any) => {
+      console.error('canvasError:', err);
+      await new Promise(resolve => setTimeout(resolve, 1000)) 
+      updateSegment();
+    });
   }
 
   useEffect(() => {
 
     const loadModel = async () => {
       const net = await bodyPix.load(/** optional arguments, see below **/);
-      // console.log(net);
       bodyPixNet = net;
     }
 
     const doEffect = async () => {
+
       let mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
   
       // MDNから audioとカメラの使用許可をブラウザに 与える
       if(videoRef.current) {
         videoRef.current.srcObject = mediaStream;
 
-        if (window.matchMedia && window.matchMedia('(max-device-width: 640px)').matches) {
-          // スマホ・タブレット（iOS・Android）の場合
-          setMyVideoStream(mediaStream);
+        if (!hideStreamMode) {
+          // スマホ・タブレット（iOS・Android）の場合、またはhideモードがfalse
+          // タグに直接autoplayだとvideoが止まってしまうため
+          videoRef.current.onloadeddata = async (e) => {
+            await videoRef!.current!.play().catch((err: any) => console.error('local play ERROR:', err));
+            setMyVideoStream(mediaStream);
+            console.log("bbbaa")
+          }
         } else {
-          // PCの場合
           // body-pit 
           await loadModel();
-    
+          console.log("aaa")
           // videoが読み込まれたらコールバックを実行する
           videoRef.current.onloadeddata = (e) => {
             startCanvasVideo();
           }
         }
-
-        // if(navigator.userAgent.match(/(iPhone|iPad|iPod|Android)/i)){
-        //   // スマホ・タブレット（iOS・Android）の場合
-        //   setMyVideoStream(mediaStream);
-
-        // }else{
-        //   // PCの場合
-        //   // body-pit 
-        //   await loadModel();
-    
-        //   // videoが読み込まれたらコールバックを実行する
-        //   videoRef.current.onloadeddata = (e) => {
-        //     startCanvasVideo();
-        //   }
-        // }
       }
     }
 
     doEffect();
-  }, [roomName]);
+  }, [hideStreamMode]);
 
   return(
     <>
-      <video muted={true} ref={videoRef} width="640px" height="480px" id="local_video" hidden/>
       <Card className={classes.root} >
         <CardContent className={classes.root} >
-          <canvas ref={canvasRef} id="canvas" width="640px" height="480px" />
+          {
+            hideStreamMode ?
+            <>
+              <video muted={true} ref={videoRef} width="640px" height="480px" id="local_video" hidden/>
+              <canvas ref={canvasRef} id="canvas" width="640px" height="480px"/>
+            </>
+            :
+            <>
+              <video muted={true} ref={videoRef} width="640px" height="480px" id="local_video"/>
+              <canvas ref={canvasRef} id="canvas" width="640px" height="480px" hidden/>
+            </>
+          }
         </CardContent>
         <CardContent >
           <Typography color="textSecondary" gutterBottom>
-            My video
+            <Button
+              size="small"
+              type="submit"
+              variant="contained"
+              color="primary"
+              onClick={ e => {
+                setHideStreamMode(!hideStreamMode);
+              }}
+            >
+              video mode change
+            </Button>
           </Typography>
           <Typography variant="body2" component="p">
             {userName}
